@@ -1,0 +1,11 @@
+matplotlib
+seaborn
+numpy
+scipy
+black
+ipython
+jupyter
+jupyterlab
+jupyterlab-git
+nbstripout
+pandas
