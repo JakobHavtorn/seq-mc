@@ -1,11 +1,13 @@
-matplotlib
-seaborn
-numpy
-scipy
 black
 ipython
 jupyter
 jupyterlab
 jupyterlab-git
+matplotlib
 nbstripout
+numpy
 pandas
+scipy
+seaborn
+torch
+tqdm
