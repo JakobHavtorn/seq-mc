@@ -7,6 +7,7 @@ matplotlib
 nbstripout
 numpy
 pandas
+pylint
 scipy
 seaborn
 torch
