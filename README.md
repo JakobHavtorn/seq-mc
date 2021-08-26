@@ -6,6 +6,7 @@ Sequential Monte Carlo Methods PhD Course
 
 ```bash
 conda create -y -n seq-mc python
-pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
+conda activate seq-mc
+pip install -r requirements.txt
 nbstripout --install
 ```

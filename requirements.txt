@@ -10,5 +10,4 @@ pandas
 pylint
 scipy
 seaborn
-torch
 tqdm
