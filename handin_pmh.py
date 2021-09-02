@@ -276,21 +276,3 @@ plt.close()
 # %%
 plt.scatter(params[:,1], loglikelihoods);
 plt.close()
-
-# %% [markdown]
-# ## c) Particle Gibbs for parameter estimation
-# %% [markdown]
-# # Problem 4: SMC sampler [8p]
-
-# %%
-
-
-
-# %%
-
-
-
-# %%
-
-
-
