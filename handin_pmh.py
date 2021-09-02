@@ -144,9 +144,14 @@ def mh_correction(current, proposal, proposal_dist):
     return proposal_prob - current_prob
 
 
-def particle_metropolis_hastings(n_steps, initial_param, param_random_walk_proposal, param_prior_logpdf, initial_particle_dist, n_particles, phi, verbose=0, seed=0):
+def particle_metropolis_hastings(n_steps, initial_param, param_random_walk_proposal, param_prior_logpdf, initial_particle_dist, n_particles, phi, burn_in=100, verbose=0, seed=0):
     if seed is not None:
         np.random.seed(seed)
+
+    if burn_in >= n_steps:
+        raise ValueError(f"We need burn_in < n_steps")
+    if burn_in == 0:
+        burn_in = 1  # discard initial reference trajectory
 
     current_param = initial_param
     initial_particles = initial_particle_dist.rvs(n_particles)
@@ -190,8 +195,7 @@ def particle_metropolis_hastings(n_steps, initial_param, param_random_walk_propo
             accept_rate = round(len(np.unique(loglikelihoods[l//2:])) / len(loglikelihoods[l//2:]), 3) * 100
             print(f"{m}/{n_steps} | acc_prob={np.exp(acceptance)*100:4.1f}, acc_rate={accept_rate:4.1f}, current_param={list(current_param)}")
         
-    return np.array(params), np.array(loglikelihoods)
-
+    return np.array(params[burn_in:]), np.array(loglikelihoods[burn_in:])
 
 # %%
 def param_prior_logpdf(params):

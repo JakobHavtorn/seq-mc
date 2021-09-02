@@ -143,7 +143,7 @@ def particle_gibbs_sampler(M, markov_kernel, sample_parameter_conditional_dist, 
         kernel_out = markov_kernel(
             reference_trajectory=reference_trajectories[m-1],
             sigma=parameters[m][0],
-            beta=parameters[m][0],
+            beta=parameters[m][1],
         )
         reference_trajectories[m] = kernel_out.reference_trajectory
         
