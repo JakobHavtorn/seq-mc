@@ -62,7 +62,8 @@ def bootstrap_pf_gibbs_stochastic_volatility(N, initial_particle_dist, reference
     initial_particles = initial_particle_dist.rvs(N)
 
     # deterministically set reference trajectory
-    initial_particles[-1] = reference_trajectory[-1]  # Condition on the reference trajectory
+    if reference_trajectory is not None:
+        initial_particles[-1] = reference_trajectory[-1]  # Condition on the reference trajectory
 
     loglikelihood = 0
     weights = [None] * T + [np.array([1/N] * N)]
@@ -83,8 +84,9 @@ def bootstrap_pf_gibbs_stochastic_volatility(N, initial_particle_dist, reference
         particles[t] = proposal_dist.rvs()
         
         # deterministically set reference trajectory
-        particles[t][-1] = reference_trajectory[t]  # Condition on the reference trajectory
-        ancestor_indices[t][-1] = N - 1  # Update according to reference trajectory
+        if reference_trajectory is not None:
+            particles[t][-1] = reference_trajectory[t]  # Condition on the reference trajectory
+            ancestor_indices[t][-1] = N - 1  # Update according to reference trajectory
 
         # measurement
         measurement_dist = scipy.stats.norm(0, np.sqrt(beta ** 2 * np.exp(particles[t])))
@@ -124,7 +126,7 @@ def bootstrap_pf_gibbs_stochastic_volatility(N, initial_particle_dist, reference
 
 
 # %%
-def particle_gibbs_sampler(M, markov_kernel, sample_parameter_conditional_dist, initial_reference_trajectory, observation_data, burn_in=100, verbose=False, seed=None):
+def particle_gibbs_sampler(M, init_params, markov_kernel, sample_parameter_conditional_dist, observation_data, burn_in=100, verbose=False, seed=None):
     if seed is not None:
         np.random.seed(seed)
 
@@ -132,10 +134,21 @@ def particle_gibbs_sampler(M, markov_kernel, sample_parameter_conditional_dist, 
         raise ValueError(f"We need burn_in < M")
     if burn_in == 0:
         burn_in = 1  # discard initial reference trajectory
-    
-    reference_trajectories = [initial_reference_trajectory] + [None] * M
-    parameters = [None] + [None] * M
+
+    reference_trajectories = [None] + [None] * M
+    parameters = [init_params] + [None] * M
     loglikelihoods = [None] + [None] * M
+    
+    # get initial reference trajectory from initial parameters
+    kernel_out = markov_kernel(
+        reference_trajectory=None,
+        sigma=parameters[0][0],
+        beta=parameters[0][1],
+    )
+    reference_trajectories[0] = kernel_out.reference_trajectory
+    
+    loglikelihoods[0] = kernel_out.loglikelihood
+    
     # iterator = tqdm(range(1, M)) if verbose else range(1, M)
     for m in range(1, M + 1):
         parameters[m] = sample_parameter_conditional_dist(reference_trajectories[m-1], observation_data)
@@ -198,16 +211,18 @@ markov_kernel = partial(
 
 
 # %%
+initial_parameters = [0.5, 0.5]
+
 for M in [3, 350, 20000, 1000, 60000]:
     print(f"Running {M=}")
 
-    initial_reference_trajectory = scipy.stats.norm(0, 1).rvs(T+1)
+    # initial_reference_trajectory = scipy.stats.norm(0, 1).rvs(T+1)
 
     states, parameters, loglikelihoods = particle_gibbs_sampler(
         M,
+        initial_parameters,
         markov_kernel,
         sample_parameter_conditional_dist,
-        initial_reference_trajectory,
         burn_in=100 if M > 100 else 0,
         observation_data=observation_data,
         verbose=True,
