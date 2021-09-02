@@ -105,8 +105,8 @@ def bootstrap_pf_gibbs_stochastic_volatility(N, initial_particle_dist, reference
 
     genealogy = backtrack_genealogy(ancestor_indices, particles)
     j = np.random.choice(range(N), p=weights[T-1], replace=False, size=1)
-    reference_trajectory = genealogy[:, j].reshape(-1)  # (T+1, N) -> (T+1,)
-    reference_trajectory = np.concatenate([reference_trajectory[1:], reference_trajectory[:1]])  # put initial at end
+    out_trajectory = genealogy[:, j].reshape(-1)  # (T+1, N) -> (T+1,)
+    out_trajectory = np.concatenate([out_trajectory[1:], out_trajectory[:1]])  # put initial at end
 
     particles = np.array(particles[:-1])  # remove initial state
     marginal_filtering = np.array(marginal_filtering)
@@ -120,7 +120,7 @@ def bootstrap_pf_gibbs_stochastic_volatility(N, initial_particle_dist, reference
         mean_observation=mean_observation,
         loglikelihood=loglikelihood,
         ancestor_indices=ancestor_indices,
-        reference_trajectory=reference_trajectory
+        reference_trajectory=out_trajectory
     )
     return output
 
